@@ -1,0 +1,36 @@
+#This is the main.yml for installing 
+#Elastic Stack for Ubuntu
+
+---
+  - name: Prerequisites for ELK
+    apt:
+      name:
+        - nginx
+        - filebeat
+      state: latest
+
+  - name: Install Elasticsearch (Ubuntu)
+    apt:
+      name:
+        - elasticsearch
+        - kibana
+        - logstash
+      state: latest
+
+  - name: Elasticsearch Start/Enable Check
+    service:
+      name: elasticsearch
+      state: restarted
+      enabled: true
+
+  - name: Kibana Start/Enable Check
+    service:
+      name: kibana
+      state: restarted
+      enabled: true
+
+  - name: Logstash Start/Enable Check
+    service:
+      name: logstash
+      state: restarted
+      enabled: true

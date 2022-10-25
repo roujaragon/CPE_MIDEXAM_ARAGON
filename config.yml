@@ -1,0 +1,90 @@
+# this is the playbook file for configuring the installation of
+# different application on the remote servers 
+
+
+---
+
+- hosts: all
+  become: true
+  pre_tasks:
+
+  - name: Configure dpkg (Ubuntu)
+    shell: |
+      dpkg --configure -a
+    when: ansible_distribution == "Ubuntu"
+
+  - name: Install dnf and epel-release (CentOS)
+    yum:
+      name:
+        - dnf
+        - epel-release
+    when: ansible_distribution == "CentOS"
+
+  - name: Install Updates (Ubuntu)
+    apt:
+      upgrade: dist
+      update_cache: yes
+    when: ansible_distribution == "Ubuntu"
+
+  - name: Install Updates (CentOS)
+    dnf:
+      update_only: yes
+      update_cache: yes
+    when: ansible_distribution == "CentOS"
+
+  - name: Install LAMP Stack (Ubuntu)
+    tags: lamp,ubuntu
+    apt:
+      name:
+        - apache2
+        - libapache2-mod-php
+        - mariadb-server
+      state: latest
+    when: ansible_distribution == "Ubuntu"
+
+  - name: Install LAMP Stack (CentOS)
+    tags: lamp,centos
+    yum:
+      name:
+        - httpd
+        - php
+        - mariadb-server
+      state: latest
+    when: ansible_distribution == "CentOS"
+
+
+  - name: "MariaDB- Restarting/Enabling"
+    service:
+      name: mariadb
+      state: restarted
+      enabled: true
+
+- hosts: nagios_ubuntu
+  become: true
+  roles:
+    - nagios_ubuntu
+
+- hosts: nagios_centos
+  become: true
+  roles:
+    - nagios_centos
+
+- hosts: prometheus_ubuntu
+  become: true
+  roles:
+    - prometheus_ubuntu
+
+- hosts: prometheus_centos
+  become: true
+  roles:
+    - prometheus_centos
+
+- hosts: elk_ubuntu
+  become: true
+  roles:
+    - elk_ubuntu
+
+- hosts: elk_centos
+  become: true
+  roles:
+    - elk_centos
